@@ -1,5 +1,5 @@
 require 'json_sequence/result'
-require 'multi_json'
+require 'json'
 
 module JsonSequence
   class Parser
@@ -27,9 +27,9 @@ module JsonSequence
 
         # Try to decode the record
         begin
-          value = MultiJson.load(record)
+          value = JSON.parse(record)
           result = handle_parsed(record, value)
-        rescue MultiJson::ParseError => err
+        rescue JSON::ParserError => err
           result, remaining = handle_err(record, err, is_last_record: i == records.size - 1)
           return remaining if result.nil?
         end
