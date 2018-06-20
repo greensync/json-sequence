@@ -30,7 +30,7 @@ RSpec.describe JsonSequence::Parser do
     )
   end
 
-  it 'ignores invalid records and continues parsing' do
+  it 'yields invalid records and continues parsing' do
     expect { |b| parser.parse(%|\x1E{"some": "json"|, &b) }.not_to yield_with_no_args
     expect { |b| parser.parse(%|\x0A\x1E{"more": "json"}\x0A|, &b) }.to yield_successive_args(
       JsonSequence::Result::ParseError,
