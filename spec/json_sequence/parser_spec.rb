@@ -57,4 +57,10 @@ RSpec.describe JsonSequence::Parser do
       JsonSequence::Result::MaybeTruncated.new(123),
     )
   end
+
+  it 'parses formatted json' do
+    expect { |b| parser.parse(%|\x1E{"some": "json",\n"more": 1,\n"even more": []}\x0A|, &b) }.to yield_successive_args(
+      JsonSequence::Result::Json.new('some' => 'json', 'more' => 1, 'even more' => [])
+    )
+  end
 end
