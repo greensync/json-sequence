@@ -30,7 +30,7 @@ Net::HTTP.start(uri.host, uri.port) do |http|
         when JsonSequence::Result::MaybeTruncated
           puts "received possibly truncated record: #{result.value.inspect}"
         when JsonSequence::Result::ParseError
-          puts "stream contained invalid record: #{result.record}, caused by: #{reuslt.error.message}"
+          puts "stream contained invalid record: #{result.record}, caused by: #{result.error.message}"
         end
       end
     end
