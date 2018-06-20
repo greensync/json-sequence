@@ -1,0 +1,43 @@
+AllCops:
+  TargetRubyVersion: 2.3
+  Exclude:
+    - 'node_modules/**/*'
+
+Documentation:
+  Enabled: false
+
+# We aren't using a new enough Ruby for this
+Lint/UnifiedInteger:
+  Enabled: false
+
+Metrics/LineLength:
+  Enabled: true
+  Max: 100
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+
+Lint/AmbiguousRegexpLiteral:
+  Exclude:
+    - 'features/step_definitions/**/*'
+
+Style/PercentLiteralDelimiters:
+  Enabled: true
+  PreferredDelimiters:
+    '%w': '[]'
+
+Style/MultilineMethodCallIndentation:
+  Enabled:  true
+  EnforcedStyle: indented
+
+Style/ClassAndModuleChildren:
+  Enabled: true
+  EnforcedStyle: compact
+
+# We aren't using a new enough Ruby for this
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Metrics/MethodLength:
+  Max: 15
