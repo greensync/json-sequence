@@ -16,7 +16,7 @@ module JsonSequence
     end
 
     class ParseError
-      attr_reader :record
+      attr_reader :record, :error
 
       def initialize(record, error)
         @record = record

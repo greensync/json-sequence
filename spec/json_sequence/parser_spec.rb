@@ -7,7 +7,6 @@ RSpec.describe JsonSequence::Parser do
     expect { |b| parser.parse(%|\x1E{"some": "json"}\x0A\x1E\x1E|, &b) }.to yield_successive_args(
       JsonSequence::Result::Json.new('some' => 'json')
     )
-    expect { |b| parser.finish(&b) }.not_to yield_with_no_args
   end
 
   it 'supports incremental parsing' do
@@ -15,14 +14,12 @@ RSpec.describe JsonSequence::Parser do
     expect { |b| parser.parse(%|}\x0A|, &b) }.to yield_successive_args(
       JsonSequence::Result::Json.new('some' => 'json')
     )
-    expect { |b| parser.finish(&b) }.not_to yield_with_no_args
   end
 
   it 'parses arrays' do
     expect { |b| parser.parse(%|\x1E[1,2,3]\x0A|, &b) }.to yield_successive_args(
       JsonSequence::Result::Json.new([1,2,3])
     )
-    expect { |b| parser.finish(&b) }.not_to yield_with_no_args
   end
 
   it 'parses multiple records at once' do
@@ -31,7 +28,6 @@ RSpec.describe JsonSequence::Parser do
       JsonSequence::Result::Json.new('some' => 'json'),
       JsonSequence::Result::Json.new('more' => 'json')
     )
-    expect { |b| parser.finish(&b) }.not_to yield_with_no_args
   end
 
   it 'ignores invalid records and continues parsing' do
@@ -39,16 +35,6 @@ RSpec.describe JsonSequence::Parser do
     expect { |b| parser.parse(%|\x0A\x1E{"more": "json"}\x0A|, &b) }.to yield_successive_args(
       JsonSequence::Result::ParseError,
       JsonSequence::Result::Json.new('more' => 'json')
-    )
-    expect { |b| parser.finish(&b) }.not_to yield_with_no_args
-  end
-
-  it 'yields a parse error if there is trailing data at the end' do
-    expect { |b| parser.parse(%|\x1E{"some": "json"}\x0A\x1E"incomplete|, &b) }.to yield_successive_args(
-      JsonSequence::Result::Json.new('some' => 'json')
-    )
-    expect { |b| parser.finish(&b) }.to yield_successive_args(
-      JsonSequence::Result::ParseError
     )
   end
 
@@ -64,13 +50,11 @@ RSpec.describe JsonSequence::Parser do
       JsonSequence::Result::Json.new(1.0),
       JsonSequence::Result::Json.new(2),
     )
-    expect { |b| parser.finish(&b) }.not_to yield_with_no_args
   end
 
   it 'reports possibly trunctated values' do
     expect { |b| parser.parse(%|\x1E123|, &b) }.to yield_successive_args(
       JsonSequence::Result::MaybeTruncated.new(123),
     )
-    expect { |b| parser.finish(&b) }.not_to yield_with_no_args
   end
 end
