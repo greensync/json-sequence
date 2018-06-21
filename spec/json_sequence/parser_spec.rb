@@ -10,7 +10,7 @@ RSpec.describe JsonSequence::Parser do
   end
 
   it 'supports incremental parsing' do
-    expect { |b| parser.parse(%|\x1E{"some": "json"|, &b) }.not_to yield_with_no_args
+    expect { |b| parser.parse(%|\x1E{"some": "json"|, &b) }.not_to yield_control
     expect { |b| parser.parse(%|}\x0A|, &b) }.to yield_successive_args(
       JsonSequence::Result::Json.new('some' => 'json')
     )
@@ -23,7 +23,7 @@ RSpec.describe JsonSequence::Parser do
   end
 
   it 'parses multiple records at once' do
-    expect { |b| parser.parse(%|\x1E{"some": "json"|, &b) }.not_to yield_with_no_args
+    expect { |b| parser.parse(%|\x1E{"some": "json"|, &b) }.not_to yield_control
     expect { |b| parser.parse(%|}\x0A\x1E{"more": "json"}\x0A|, &b) }.to yield_successive_args(
       JsonSequence::Result::Json.new('some' => 'json'),
       JsonSequence::Result::Json.new('more' => 'json')
@@ -31,7 +31,7 @@ RSpec.describe JsonSequence::Parser do
   end
 
   it 'yields invalid records and continues parsing' do
-    expect { |b| parser.parse(%|\x1E{"some": "json"|, &b) }.not_to yield_with_no_args
+    expect { |b| parser.parse(%|\x1E{"some": "json"|, &b) }.not_to yield_control
     expect { |b| parser.parse(%|\x0A\x1E{"more": "json"}\x0A|, &b) }.to yield_successive_args(
       JsonSequence::Result::ParseError,
       JsonSequence::Result::Json.new('more' => 'json')
@@ -53,8 +53,16 @@ RSpec.describe JsonSequence::Parser do
   end
 
   it 'reports possibly trunctated values' do
-    expect { |b| parser.parse(%|\x1E123|, &b) }.to yield_successive_args(
+    expect { |b| parser.parse(%|\x1E123|, &b) }.not_to yield_control
+    expect { |b| parser.parse(%|\x1E|, &b) }.to yield_successive_args(
       JsonSequence::Result::MaybeTruncated.new(123),
+    )
+  end
+
+  it "doesn't report trunctated values when value is split across chunks" do
+    expect { |b| parser.parse(%|\x1E123|, &b) }.not_to yield_control
+    expect { |b| parser.parse(%|456\x0A|, &b) }.to yield_successive_args(
+      JsonSequence::Result::Json.new(123456),
     )
   end
 
