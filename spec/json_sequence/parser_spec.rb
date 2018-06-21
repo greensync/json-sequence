@@ -71,4 +71,14 @@ RSpec.describe JsonSequence::Parser do
       JsonSequence::Result::Json.new('some' => 'json', 'more' => 1, 'even more' => [])
     )
   end
+
+  it 'handles many small chunks' do
+    expect { |b| parser.parse(%|\x1E{"|, &b) }.not_to yield_control
+    expect { |b| parser.parse(%|some|, &b) }.not_to yield_control
+    expect { |b| parser.parse(%|": "|, &b) }.not_to yield_control
+    expect { |b| parser.parse(%|js|, &b) }.not_to yield_control
+    expect { |b| parser.parse(%|on"}\x0A|, &b) }.to yield_successive_args(
+      JsonSequence::Result::Json.new('some' => 'json')
+    )
+  end
 end
