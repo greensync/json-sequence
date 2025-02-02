@@ -18,33 +18,29 @@ module JsonSequence
     # Takes a String buffer to parse and returns String containing any
     # text remaining to parse when more data is available.
     def do_parse(buffer)
-      records = buffer.split(RS, -1) # -1 stops suppression of trailing null fields
+      # RFC7464 2.1 Multiple consecutive RS octets do not denote empty
+      # sequence elements between them and can be ignored.
+      records = buffer.split(RS).reject(&:empty?)
 
-      records.each_with_index do |record, i|
-        # RFC7464 2.1 Multiple consecutive RS octets do not denote empty
-        # sequence elements between them and can be ignored.
-        next if record == ''
+      # Every record except the last is guaranteed to be completed
+      records[0...-1].each { |record| yield decode_record(record) }
 
-        is_last_record = i == records.size - 1
+      last_result = decode_record(records.last)
 
-        # Try to decode the record
-        begin
-          value = MultiJson.load(record)
-          if truncated?(record, value)
-            return record if is_last_record
-
-            yield JsonSequence::Result::MaybeTruncated.new(value)
-          else
-            yield JsonSequence::Result::Json.new(value)
-          end
-        rescue MultiJson::ParseError => err
-          return record if is_last_record
-
-          yield JsonSequence::Result::ParseError.new(record, err)
-        end
-      end
+      # If we have an incomplete record and run out of valid json early, return it to the buffer
+      return records.last if !buffer.end_with?(RS) && partial_result?(last_result)
+      yield last_result
 
       ''
+    end
+
+    def decode_record(record)
+      value = MultiJson.load(record)
+      return JsonSequence::Result::MaybeTruncated.new(value) if truncated?(record, value)
+
+      JsonSequence::Result::Json.new(value)
+    rescue MultiJson::ParseError => e
+      JsonSequence::Result::ParseError.new(record, e)
     end
 
     def truncated?(record, value)
@@ -56,6 +52,10 @@ module JsonSequence
       else
         false
       end
+    end
+
+    def partial_result?(result)
+      !result.is_a?(JsonSequence::Result::Json)
     end
   end
 end
