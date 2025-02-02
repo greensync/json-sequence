@@ -25,37 +25,37 @@ module JsonSequence
         # sequence elements between them and can be ignored.
         next if record == ''
 
+        is_last_record = i == records.size - 1
+
         # Try to decode the record
         begin
           value = MultiJson.load(record)
-          result, remaining = handle_parsed(record, value, is_last_record: i == records.size - 1)
-        rescue MultiJson::ParseError => err
-          result, remaining = handle_err(record, err, is_last_record: i == records.size - 1)
-        end
+          if truncated?(record, value)
+            return record if is_last_record
 
-        return remaining if result.nil?
-        yield result
+            yield JsonSequence::Result::MaybeTruncated.new(value)
+          else
+            yield JsonSequence::Result::Json.new(value)
+          end
+        rescue MultiJson::ParseError => err
+          return record if is_last_record
+
+          yield JsonSequence::Result::ParseError.new(record, err)
+        end
       end
 
       ''
     end
 
-    def handle_parsed(record, value, is_last_record:)
+    def truncated?(record, value)
       case value
       when Numeric, TrueClass, FalseClass, NilClass
         # Check for truncation, if record was parsed but doesn't end in
         # whitespace it may be truncated
-        if record !~ /\s$/
-          return is_last_record ? [nil, record] : [JsonSequence::Result::MaybeTruncated.new(value), '']
-        end
+        record !~ /\s$/
+      else
+        false
       end
-
-      [JsonSequence::Result::Json.new(value), '']
-    end
-
-    def handle_err(record, err, is_last_record:)
-      # Last record, might be incomplete, stash for later
-      is_last_record ? [nil, record] : [JsonSequence::Result::ParseError.new(record, err), '']
     end
   end
 end
