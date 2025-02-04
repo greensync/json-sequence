@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    json-sequence (0.2.0)
+    json-sequence (0.2.1)
       multi_json (~> 1.15)
 
 GEM
@@ -9,7 +9,6 @@ GEM
   specs:
     diff-lcs (1.5.1)
     json (2.9.1)
-    json (2.9.1-java)
     multi_json (1.15.0)
     rake (10.5.0)
     rspec (3.13.0)
