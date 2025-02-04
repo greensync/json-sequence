@@ -18,44 +18,44 @@ module JsonSequence
     # Takes a String buffer to parse and returns String containing any
     # text remaining to parse when more data is available.
     def do_parse(buffer)
-      records = buffer.split(RS, -1) # -1 stops suppression of trailing null fields
+      # RFC7464 2.1 Multiple consecutive RS octets do not denote empty
+      # sequence elements between them and can be ignored.
+      records = buffer.split(RS).reject(&:empty?)
 
-      records.each_with_index do |record, i|
-        # RFC7464 2.1 Multiple consecutive RS octets do not denote empty
-        # sequence elements between them and can be ignored.
-        next if record == ''
+      # Every record except the last is guaranteed to be completed
+      records[0...-1].each { |record| yield decode_record(record) }
 
-        # Try to decode the record
-        begin
-          value = MultiJson.load(record)
-          result, remaining = handle_parsed(record, value, is_last_record: i == records.size - 1)
-        rescue MultiJson::ParseError => err
-          result, remaining = handle_err(record, err, is_last_record: i == records.size - 1)
-        end
+      last_result = decode_record(records.last)
 
-        return remaining if result.nil?
-        yield result
-      end
+      # If we have an incomplete record and run out of valid json early, return it to the buffer
+      return records.last if !buffer.end_with?(RS) && partial_result?(last_result)
+      yield last_result
 
       ''
     end
 
-    def handle_parsed(record, value, is_last_record:)
+    def decode_record(record)
+      value = MultiJson.load(record)
+      return JsonSequence::Result::MaybeTruncated.new(value) if truncated?(record, value)
+
+      JsonSequence::Result::Json.new(value)
+    rescue MultiJson::ParseError => e
+      JsonSequence::Result::ParseError.new(record, e)
+    end
+
+    def truncated?(record, value)
       case value
       when Numeric, TrueClass, FalseClass, NilClass
         # Check for truncation, if record was parsed but doesn't end in
         # whitespace it may be truncated
-        if record !~ /\s$/
-          return is_last_record ? [nil, record] : [JsonSequence::Result::MaybeTruncated.new(value), '']
-        end
+        record !~ /\s$/
+      else
+        false
       end
-
-      [JsonSequence::Result::Json.new(value), '']
     end
 
-    def handle_err(record, err, is_last_record:)
-      # Last record, might be incomplete, stash for later
-      is_last_record ? [nil, record] : [JsonSequence::Result::ParseError.new(record, err), '']
+    def partial_result?(result)
+      !result.is_a?(JsonSequence::Result::Json)
     end
   end
 end
