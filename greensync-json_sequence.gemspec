@@ -1,7 +1,7 @@
 
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "json_sequence/version"
+require "greensync/json_sequence/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "greensync-json_sequence"
@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
   spec.license       = "MIT"
 
   spec.files         = Dir.chdir(File.expand_path('..', __FILE__)) do
-    Dir.glob("{bin,lib}/**/*") + %w[README.md Gemfile Gemfile.lock Rakefile LICENSE.txt json-sequence.gemspec]
+    Dir.glob("{bin,lib}/**/*") + %w[README.md Gemfile Gemfile.lock Rakefile LICENSE.txt greensync-json_sequence.gemspec]
   end
 
   spec.bindir        = "exe"
