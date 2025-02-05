@@ -4,10 +4,10 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "json_sequence/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "json-sequence"
+  spec.name          = "greensync-json_sequence"
   spec.version       = JsonSequence::VERSION
-  spec.authors       = ["Wesley Moore"]
-  spec.email         = ["wes.moore@greensync.com.au"]
+  spec.authors       = ['GreenSync Developers']
+  spec.email         = ['developers@greensync.com.au']
 
   spec.summary       = %q{Push parser for RFC7464 JSON Sequences}
   spec.homepage      = "https://github.com/greensync/json-sequence"
@@ -27,4 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "json", "~> 2.0"
+
+  spec.metadata['rubygems_mfa_required'] = 'true'
+  spec.metadata['allowed_push_host'] = 'https://rubygems.pkg.github.com/greensync'
 end
