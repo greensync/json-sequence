@@ -1,4 +1,4 @@
-require 'json_sequence/result'
+require_relative 'result'
 require 'multi_json'
 
 module JsonSequence

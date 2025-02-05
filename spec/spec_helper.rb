@@ -1,5 +1,5 @@
 require "bundler/setup"
-require "json_sequence"
+require "greensync/json_sequence"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

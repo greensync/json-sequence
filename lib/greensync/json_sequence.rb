@@ -1,1 +1,1 @@
-require 'json_sequence/parser'
+require_relative 'json_sequence/parser'
