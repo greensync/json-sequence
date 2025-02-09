@@ -28,6 +28,11 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "json", "~> 2.0"
 
+  spec.metadata['homepage_uri'] = spec.homepage
+  spec.metadata['source_code_uri'] = 'https://github.com/greensync/json-sequence'
+  spec.metadata['changelog_uri'] = 'https://github.com/greensync/json-sequence/releases'
+  spec.metadata['github_repo'] = 'https://github.com/greensync/json-sequence'
+
   spec.metadata['rubygems_mfa_required'] = 'true'
   spec.metadata['allowed_push_host'] = 'https://rubygems.pkg.github.com/greensync'
 end
