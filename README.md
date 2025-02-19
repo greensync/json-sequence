@@ -49,3 +49,11 @@ release a new version, update the version number in `version.rb`, and then run
 `bundle exec rake release`, which will create a git tag for the version, push
 git commits and tags, and push the `.gem` file to
 [rubygems.org](https://rubygems.org).
+
+To push the gem to the greensync resource:
+```bash
+gem build greensync-json_sequence.gemspec 
+gem push --key github \                    
+  --host https://rubygems.pkg.github.com/greensync \
+  greensync-json_sequence-x.x.x.gem
+```

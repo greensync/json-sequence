@@ -9,6 +9,10 @@ RSpec.describe JsonSequence::Parser do
     )
   end
 
+  it 'ignores keep alive token RS octet' do
+    expect { |b| parser.parse(%|\x1E|, &b) }.not_to yield_control
+  end
+
   it 'supports incremental parsing' do
     expect { |b| parser.parse(%|\x1E{"some": "json"|, &b) }.not_to yield_control
     expect { |b| parser.parse(%|}\x0A|, &b) }.to yield_successive_args(

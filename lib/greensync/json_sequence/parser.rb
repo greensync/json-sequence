@@ -21,6 +21,7 @@ module JsonSequence
       # RFC7464 2.1 Multiple consecutive RS octets do not denote empty
       # sequence elements between them and can be ignored.
       records = buffer.split(RS).reject(&:empty?)
+      return '' if records.empty?
 
       # Every record except the last is guaranteed to be completed
       records[0...-1].each { |record| yield decode_record(record) }
