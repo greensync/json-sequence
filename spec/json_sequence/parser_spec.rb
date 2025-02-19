@@ -9,6 +9,10 @@ RSpec.describe JsonSequence::Parser do
     )
   end
 
+  it 'parses starting with a json seperator correctly' do
+    expect { |b| parser.parse(%|\n\x1E|, &b)}.not_to yield_control
+  end
+
   it 'ignores keep alive token RS octet' do
     expect { |b| parser.parse(%|\x1E|, &b) }.not_to yield_control
   end

@@ -20,7 +20,7 @@ module JsonSequence
     def do_parse(buffer)
       # RFC7464 2.1 Multiple consecutive RS octets do not denote empty
       # sequence elements between them and can be ignored.
-      records = buffer.split(RS).reject(&:empty?)
+      records = buffer.split(RS).reject { |chunk| chunk.empty? || chunk == "\n" }
       return '' if records.empty?
 
       # Every record except the last is guaranteed to be completed

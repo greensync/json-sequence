@@ -53,7 +53,5 @@ git commits and tags, and push the `.gem` file to
 To push the gem to the greensync resource:
 ```bash
 gem build greensync-json_sequence.gemspec 
-gem push --key github \                    
-  --host https://rubygems.pkg.github.com/greensync \
-  greensync-json_sequence-x.x.x.gem
+gem push --key github --host https://rubygems.pkg.github.com/greensync greensync-json_sequence-0.x.x.gem
 ```
